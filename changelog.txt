@@ -1,0 +1,152 @@
+15/03/2021 - r16
+novo:
+1 - Novo sistema/modulo: detector de renames, o addon vai salvar o GUID dos players, dessa forma vai poder detectar quando algum deles trocar o nome, e informará os nomes anteriores.
+2 - Agora o addon irá salvar o score de bgs junto e contra todos os outros jogadores, e essa informação será salva na conta, e não mais no char, portanto será somado as bgs feitas em todos os personagens da sua conta.
+3 - Agora o addon irá mostrar o tamanho dos bancos de dados no painel de interface.
+
+alteração:
+1 - Reformulação do sistema de "cooldown" da sincronização com os demais usuarios, dessa forma o addon conseguirá evitar de forma melhor ficar re-enviando as mesmas informações para os outros usuarios da guild.
+	Ao logar, enviará as configurações e tabelas menores no canal da guild, além de enviar até 500 scores entre os mais recentes, além de toda a tabela de GUID / Cooldown de 20 minutos.
+	Ao sincronizar com outro player, enviará as configurações e tabelas menores no canal privado, junto com os 150 scores mais recentes, além de até 550 GUID aleatorios junto com todos os renames / Cooldown de 10 minutos por player.
+2 - Agora o addon mostrará apenas os players com pelo menos 50 bgs disputadas no ranking de winrate da guild.
+3 - Revisão de todos os textos das configurações, pra deixar de forma padrão e de entendimento mais fácil.
+
+fix:
+1 - Ajuste técnico para deixar o addon com processamento mais rápido.
+2 - Fix para um erro que não fazia as informações de score serem descartadas com o tempo, se o player escolheu essa opção na configuração do addon.
+3 - Correção para não informar "player tem 0 kils hoje" ao resetar o contador as 21:00 hrs.
+4 - Ajuste para identificar usuarios do addon na raid ou party que não sejam da mesma guild que o usuario.
+5 - Correção para evitar o spam de erros de player offline ao sair de um estado profundo de AFK e iniciar uma sincronização.
+
+----------------------------------------
+
+
+28/02/2021 - r15
+novo:
+1 - Adicionado controle para o conflito do Radar com o addon WIM, se o usuário estiver usando o addon WIM, o nosso radar será desativado para evitar que fique abrindo a tela do /who.
+2 - Aumento da quantidade máxima de players no ranking de 101 para 200.
+3 - Incluida informação de tempo na fila para resposta da função "Queue/BG".
+4 - Agora o addon avisará o winstreak nos avisos de vitoria de BG sempre que estiver em um numero multiplo de 5 (antes só mostrava na derrota que encerrava um winstreak).
+5 - Incluida opção pra resetar o score de um player na database através do menu que abre com o botão direito do mouse.
+
+----------------------------------------
+
+24/02/2021 - r14
+Addon revisado: código separado por assunto em vários arquivos e vários modulos reescritos/reformulados.
+Novo:
+1 - Incluida opção para o guild master cadastrar, in-game, os itens de interesse da guild.
+2 - Adicionada informação para mostrar na tooltip dos itens a quantidade que tem no GV (informação sincronizada entre os membros).
+3 - Incluido o comando "/gra auc" para resetar a database de preço do addon Auctionator.
+4 - Ajustes para viabilizar integração com o bot do discord.
+5 - Incluido informações de raid ao usar a opção "Queue/BG".
+6 - Incluido envio de mensagem aos demais membros da guild quando você empatar uma BG, ou perder uma BG em menos de 3 minutos após sua entrada (antes informava apenas para você).
+7 - Incluida opção para só mostrar premades de guilds da facção oposta no radar.
+8 - Incluido botão no painel para mostrar a blacklist da guild.
+Fix:
+1 - Fix pra corrigir alguns problemas que ocorriam quando algum membro da guild deslogava, dava rename e logava com o novo nome enquanto você ainda estava online.
+2 - Fix para um problema que fazia os membros offline da guild ficarem ocultos no guild panel após realizar qualquer alteração de membro (kick, invite, promote e demote) com o painel aberto.
+3 - Fix para uma falha que fazia com que o addon não informasse durante o login que o player está com cap de honor caso ele não estivesse em alguma guild.
+4 - Fix para mostrar o nome da guild do usuario no texto que indica o interesse da guild em determinado item, estava mostrando o nome da Bootybay Surfclub independente da guild em que o player estava.
+5 - Fix para falha que fazia com que tentasse realizar duas sincronizações de itens de interesse da guild ao mesmo tempo.
+6 - Fix para não mostrar erro de divisão por zero no comando "/gra aliado nome".
+7 - Fix para não considerar o proprio usuario como um alido no comando acima.
+Remoções:
+1 - Remoção do comando /gra pedras, pois agora aparecerá a quantidade existente no GV direto na tooltip do item.
+2 - Remoção da atualização automatica de score do target e focus, ficando apenas do mouseover, já que pra aparecer a tooltip e você ver o score, inevitavelmente vai ter que passar o mouse em cima do player.
+3 - Removida a informação de round ao enviar info em strand via botão "Queue/BG", pois não era 100% confiavel.
+4 - Remoção de todas as coisas relacionadas ao registro de notas. (no futuro pretendo re-implementar o sistema, porém de forma compartilhada com toda a guild)
+
+----------------------------------------
+
+20/10/2020 - r13.1
+fix:
+1 - Correção para que as marcações no nameplate funcionem com a versão editada do TidyPlates conhecida como "TidyPlates: Clean".
+
+----------------------------------------
+
+18/10/2020 - r13
+fix:
+1 - Correção pra evitar que as informações de itens de interesse da guild acabem se perdendo durante sincronização.
+2 - Fix com os problemas envolvendo o TidyPlates, agora as marcações devem permanecer no local correto.
+Atenção: Se você utiliza qualquer variação de tema do TidyPlates, talvez seja necessário ajustar manualmente a posição, através do menu de configuração:
+Esc > Interface > Addons > Bootybay Surfclub > Configurações > Nameplates > Ajustar Posição
+
+----------------------------------------
+
+20/09/2020 - r12.1
+Novo:
+1 - Agora o Addon vai ignorar empates em BGs.
+Fix:
+1 - Correção pra voltar a desconsiderar loses com menos de 3min após a entrada na BG.
+2 - Correção pra uma falha que não considerava uma BG como sendo BG em grupo ao joinar solo e ter outros 2 membros da guild na mesma BG.
+
+----------------------------------------
+
+30/08/2020 - r12
+Novo:
+1 - Algumas mudanças e implementações internas pra viabilizar a integração entre o addon e o bot do discord.
+2 - Implementado comando "/gra premades" que irá mostrar quais são as premades ativas no momento. finalmente, em?
+3 - Implementado comando "/gra bg" que funcionará como uma solicitação de "BG/Queue" em você mesmo (útil pra saber em qual round a strand está, ou quanto tempo falta pra warsong acabar).
+4 - Implementado comando "/gra pedras" pra mostrar quantas pedras tem de cada no GV (pra quem deposita pedras la ver qual tem menos na hr de comprar no npc).
+5 - Inclusão de Wintergrasp no sistema de radar de premades.
+Fix:
+1 - Corrigido falha que fazia com que ficasse enviando o banco de dados de score sempre que relogava, agora vai respeitar o intervalo de 15 minutos entre cada envio.
+2 - Alteração no filtro de msg do AntiNinja, pra suprimir 100% das msg ligadas ao sistema, caso o player deseje.
+3 - Corrigida falha que fazia com que o addon identifica-se, de forma errada, que o player mudou de guild quando dois players logavam no mesmo instante e iniciavam sincronização antes de o client disponibilizar informações atuais da guild.
+4 - Corrigido falha que poderia fazer informações de guilds diferentes serem misturadas no momento de troca de um player pra outra guild que também utilize o addon.
+5 - Fix para não apagar informações antigas do score de algum player da guild caso o usuario selecione a opção de apagar scores antigos.
+6 - Atualizado o controle de conflito com o Gearscore, agora vai desativar além do update de score no mouseover, também o update da mudança de target e focus.
+7 - Fix pra mostrar algumas msg enviadas por quem ainda não atualizou o addon e usa uma versão bem antiga.
+8 - Fix pra mostrar info de SoloQ ou 5v5 skirmish no "BG/Queue".
+9 - Fix para sincronizar informação de que um amigo é usuario do addon quando ele, fora da guild, loga enquanto você já está on.
+10 - Fix de lua error que aparecia ao abrir o menu do botao direito em alguém no seu time de arena.
+11 - BG joinada solo, porém tendo um grupo da guild nela, vai contar como BG em grupo, e não solo/duo, para fins de winstreak.
+
+----------------------------------------
+
+18/07/2020 - r11.1
+Fix:
+1 - Correção importante que fazia com que várias funções do addon parassem de funcionar em certos momentos.
+
+----------------------------------------
+
+15/07/2020 - r11
+novo:
+1 - perder uma BG em menos de 3 minutos após ter entrado nela não fará seu winstreak ser resetado
+2 - criado filtro para as mensagens do AntiNinja no chat (ver detalhes no menu de configuração)
+3 - criado uma opção no menu de configuração para realizar ajustes na posição dos icones no nameplate
+
+fix/mudanças:
+1 - mudança no sistema de nameplates, antes usava uma Lib externa, agora utiliza um sistema próprio pra fazer o manuseio das nameplates, então agora tenho mais noção de onde ocorrem os problemas.
+2 - corrigido falha que fazia as marcações da nameplate sumirem do nada, ficarem um tempo sumidas e retornarem do nada.
+3 - corrigido falha que fazia com que o level do player saltasse sobre o icone do nameplate, ao selecionar outro nameplate.
+4 - corrigido, a pedidos, falha gravissima de projeto que fazia com que o addon não reconhecesse apropriadamente o primeiro dk healer do servidor (desculpa Dharkyn <3)
+5 - corrigido falha em uma correção da versão anterior, sobre considerar uma dupla em raid como um grupo
+6 - corrigido falha ao salvar as informações de recordes pessoais quando se usa o addon sem guild
+7 - corrigido falha de não resetar o killstreak na morte, ao usar o addon sem guild
+8 - corrigido falha que fazia com que não enviasse info para os amigos, ao logar e não estar em uma guild
+9 - corrigido falha que fazia o radar parar de funcionar as vezes (espero que funcione)
+10 - corrigido falha que permitia que um usuario de fora da guild pudesse enviar informações fraudadas pros bancos de dados compartilhados da guild
+11 - melhoria na função info BG/Queue, para evitar ao maximo enviar informação incompleta (caso o player tenha deixado para visualizar apenas as infos de uma facção no score)
+
+---------------------------------------
+
+06/07/2020 - r10:
+novo:
+1 - Implementada marcações nos nameplates de healers e alvos da blacklist.
+2 - Opção "Queue/BG" vai mostrar se o player está de deserter, juntamente com o tempo restante do debuff.
+3 - Criado um filtro de bloqueio para solicitações do /who durante a execução do radar.
+
+fix:
+1 - Joinar bg em 2, num grupo transformado em RAID, vai contar como duo, não grupo.
+2 - Selecionar uma opção no menu de configuração não vai mais fazer com que o valor selecionado seja mostrado no chat.
+3 - Membros com 0 bgs jogadas não vão mais mostrar erro no ranking de winrate (erro de divisão por zero).
+4 - Aumentada a janela de bloqueio para msg de erro ao whispar player offline, de 4 minutos para 6 minutos, após iniciar qualquer sincronização via whisper, e feito ajuste para só bloquear as msg de erro se o player for da mesma guild que o usuario.
+
+---------------------------------------
+
+26/06/2020 - r9.1:
+1 - Corrigido falha que fazia com que aparecesse um spam de mensagem dizendo que não era possivel whispar determinado player por estar offline.
+Isso ocorria quando alguem logava, os addons iniciavam a sincronização, e o player deslogava, não recebendo mais as mensagens do addon por estar offline, agora o addon vai suprimir qualquer aviso desse erro durante 4 minutos após iniciar qualquer sincronização.
+2 - Corrigida falha que fazia com que algumas informações particulares da guild não fossem resetadas se o addon perceber que o usuario trocou de guild
+3 - Corrigida falha que fazia com que o addon não respondesse o aviso de login de um player de fora da guild (enviado pela lista de friends), e portanto, não fosse incluido na lista de usuarios online do remetente (para poder usar as infos de queue).

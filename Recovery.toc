@@ -1,0 +1,22 @@
+## Interface: 30300
+## Title: Bootybay Surfclub
+## Version: 3.0
+## Notes: Recovery(Ally)/Bootybay Surfclub(Horde).
+## Author: Killax (WoW Brasil)
+## SavedVariables: BootybayData, BootybayConfig
+## SavedVariablesPerCharacter: BootybayCharInfo, BootybayControle
+
+Lib\ChatThrottleLib.lua
+1-Func Aux.lua
+2-Load.lua
+3-BG e Queue.lua
+4-GUID e Rename.lua
+5-Score.lua
+6-Guild Bank.lua
+7-Radar.lua
+8-Nameplate.lua
+9-Combat Log.lua
+10-Interface.lua
+11-Comunicacao e Filtros.lua
+12-Comandos.lua
+13-Registros.lua
