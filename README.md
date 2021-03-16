@@ -1,0 +1,123 @@
+Addon das guilds Recovery e Bootybay Surfclub (Servidor WoW-Brasil)
+
+O que tem tanto no nosso addon?
+Basicamente é um addon feito pela propria guild para ajudar na imersão dos nossos players.
+O addon começou a ser desenvolvido entre o final de 2016 e o inicio de 2017, e desde então vem passando por mudanças e melhorias, conforme surgem necessidades ou novas ideias entre nossos membros.
+
+Como vazou uma versão do addon um tempo atrás e muita gente de fora da guild está usando, tomei a decisão de tornar o addon oficialmente público.
+
+
+O que você irá encontrar:
+
+------------
+Radar:
+Radar de Premades: o addon realiza de forma constante uma analise de todos os players dentro de todas as BGs do servidor, e vai lhe informar sempre que houver uma premade de guild em alguma delas, informando o mapa, a guild e a quantidade de players.
+Radar de Invasões: da mesma forma, o addon vai analisar com frequencia as cidades da sua facção, e lhe informar caso encontre um grupo de players inimigos em alguma delas.
+------------
+
+------------
+Blacklist:
+Fornece uma blacklist da guild, sincronizada entre os usuarios, onde o guild master e os officers podem colocar os players que merecem ser caçados.
+------------
+
+------------
+Nameplates:
+O addon vai colocar uma caveira no nameplate de alvos da blacklist, para que sejam facilmente identificados pelos membros.
+O addon também vai colocar um simbolo de healer ao lado do nameplate de healers.
+------------
+
+------------
+Banco de dados de Score:
+O addon salva, e sincroniza com os demais usuarios da guild, algumas estatisticas de pvp sempre que você passar o mouse em cima de um player friendly.
+Na tooltip dos personagens é mostrado o score de bg deles (Total e Winrate), bem como o historico de bgs que você fez com o player, ou contra o player.
+------------
+
+------------
+Banco de dados de rename:
+O addon salva o GUID dos players com quem você interage, assim saberá quando algum deles mudar de nome, te informando.
+------------
+
+------------
+Anuncios no chat, apenas para os membros que também utilizam o addon:
+Mortes, Kill streak, kills da black list, vitorias e derrotas em bg, info sobre qual cemitério da BG irá renascer.
+------------
+
+------------
+Informação de queue/BG: 
+Ao clicar com o botão direito do mouse em cima de algum outro usuario, você vai encontrar uma opção que te mostrará qual a situação do queue do player, ou, qual a situação da BG em que ele se encontra (numero da BG, pontos, tempo restante, quantidade de ally e horda).
+Além de informação sobre Queue, ou BG e Arena, essa função também mostra informações de raid e duração de Deserter.
+Chega de ficar enchendo o saco do amigo de 30 em 30 segundos perguntando se tem vaga ou se vai demorar muito.
+------------
+
+------------
+Ranking:
+O addon faz o ranqueamento de todos os membros da guild através de uma série de formatos, sendo atualmente:
+Para todos os membros: Total BGs, Winrate BGs e Total Kill.
+Para os membros usuarios do addon: Killstreak, Winstreak solo, Winstreak grupo, Kills da blacklist, Kills no dia, kills numa bg, dano numa bg e heal numa bg.
+Para abrir o menu do ranking, digite /gra rank.
+------------
+
+------------
+Itens:
+O addon vai colocar uma marcação nos itens que a sua guild possui algum interesse, cadastrados apenas pelo Guild Master.
+O addon também informará na tooltip dos itens, a quantidade existente deles no guild bank.
+------------
+
+------------
+Outros:
+O addon vai te dar uma opção de bloquear as mensagens do sistema AntiNinja e Loja Vip.
+O addon vai te avisar sempre que você atingir o cap de honor, ou isso estiver próximo de acontecer (chega de perder gold!)
+------------
+
+------------
+Configuração e comandos:
+Todas essas funcionalidades são totalmente configuraveis, e podem até ser desativados caso você queira.
+
+Pelo chat, os comandos são:
+/gra vers *vai informar os demais usuários on (guild, party, raid e bg)
+/gra blacklist show *vai mostrar os membros que estão na blacklist da guild
+/gra blacklist add *para officers / vai abrir a box pra adicionar alguém na blacklist (também pode adicionar, clicando com o direito no frame de um player inimigo)
+/gra blacklist remove *para officers / para remoção de players da blacklist
+/gra score [nome] *vai mostrar o score do nome informado, ou caso não tenha sido informado nenhum nome, o score do seu target
+/gra auc *vai resetar a tabela com historico de preços do addon Auctionator
+/gra premades ou /gra p *vai mostrar as premades ativas no momento
+/gra bg *vai servir como uma solicitação de Queue/BG em você mesmo
+/gra rank *vai abrir a tela do ranking
+/gra *vai abrir o painel de configuração
+/gra gm *vai abrir o painel de configuração das opções do guild master
+------------
+
+------------
+INCOMPATIBILIDADES:
+Addon WIM (WoW Instant Messenger): se esse addon estiver ativo, o radar não será executado.
+Addon Gearscore: se esse addon estiver ativo, os scores do seu mouseover não serão salvos, e você verá apenas os scores enviados por outros usuarios na sua guild.
+Patch de tradução do WoW: algumas informações podem ficar incorretas, devido a tradução do nome de mapas, itens, raças e classes.
+------------
+
+------------
+Perguntas Frequentes:
+
+->Preciso estar na guild Bootybay Surfclub pro addon funcionar?
+	Não precisa, mas o addon fica mais legal quando a guild toda usa, como nós fazemos.
+
+->O GM da minha guild tem que usar o addon pras funções funcionarem?
+	Não e sim, os membros podem usar sem a necessidade do guild master ter o addon, porém algumas funções não terão efeito, como a blacklist ou itens de interesse da guild, pois dependem da configuração do guild master.
+
+->Funciona se eu usar na ally?
+	Sim, funciona em qualquer uma das facções.
+
+->Eu uso um addon que modifica o nameplate, e isso faz com que os icones de heal e blacklist fiquem desalinhados, o que faço?
+	Vá no menu de configuração, nameplates, ajustar nameplates, e faça o ajuste manual da posição dos ícones.
+
+->O addon está colocando a marcação de healer em um DK!!!
+	Se o nome desse dk for Dharkyn, o addon está correto, ele é healer!!!
+------------
+
+Caso ocorra algum Lua Error, por favor, tire um print e me envie, de preferencia com alguma informação do que estava ocorrendo na hora, pra eu poder tentar reproduzir e corrigir.
+Caso possua alguma sugestão, me envie também :)
+
+Lembre de manter o addon sempre atualizado, pois o tempo todo tem coisa nova saindo!
+
+
+Killax (Bootybay Surfclub / Recovery)
+WoW-Brasil 3.3.5a
