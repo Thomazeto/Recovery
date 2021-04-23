@@ -23,7 +23,6 @@ local Curas =
 }
 
 function Bootybay:COMBAT_LOG_EVENT_UNFILTERED(...)
-    
     local _, subevent, _, sourceName, sourceFlags, destGUID, destName, destFlags, prefixParam1, prefixParam2, _, _, suffixParam2 = ...
     
     if tContains(Curas, prefixParam2) then

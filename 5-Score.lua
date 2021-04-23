@@ -15,6 +15,8 @@ local function AddScoreTooltip(tooltip)
     if not unitName or not unit then return end
     if not UnitIsPlayer(unit) then return end
     
+    if unitName == "Unknown" then return end
+    
     local guid = UnitGUID(unit)
     
     if guid then 
@@ -64,14 +66,16 @@ local function AddScoreTooltip(tooltip)
         end
     end
     
-    if #BOOTYBAY.dbData.Guid[guid] > 1 then
-        local tab = {}
-        for k,v in pairs(BOOTYBAY.dbData.Guid[guid]) do
-            if v ~= unitName then
-                tinsert(tab, v)
+    if BOOTYBAY.dbConfig.RenameTooltip then
+        if #BOOTYBAY.dbData.Guid[guid] > 1 then
+            local tab = {}
+            for k,v in pairs(BOOTYBAY.dbData.Guid[guid]) do
+                if v ~= unitName then
+                    tinsert(tab, v)
+                end
             end
+            tooltip:AddLine("Nomes antigos: "..table.concat(tab,", ").."",1,1,1,true)
         end
-        tooltip:AddLine("Nomes antigos: "..table.concat(tab,", ").."",1,1,1,true)
     end
     
     tooltip:Show() 
@@ -117,6 +121,7 @@ function Bootybay:UPDATE_MOUSEOVER_UNIT(...)
     if Bool_Inspectando == false then
         if not CanInspect("mouseover") or not CheckInteractDistance("mouseover", 1) then return end
         Nome = tostring(UnitName("mouseover"))
+        if Nome == "Unknown" then return end
         if BOOTYBAY.Fn_ContemChave(BOOTYBAY.dbData.Score, Nome) then
             if (BOOTYBAY.HORA_DO_LOGIN - BOOTYBAY.dbData.Score[Nome]["data"]) <= BOOTYBAY.dbConfig.ScoreValidade then
                 return 

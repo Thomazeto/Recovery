@@ -1,5 +1,5 @@
 local Recovery, BOOTYBAY    = ...
-BOOTYBAY.VERSION            = 16
+BOOTYBAY.VERSION            = 17
 BOOTYBAY.events             = {}
 local Bootybay              = BOOTYBAY.events
 
@@ -47,9 +47,11 @@ function BOOTYBAY:VariaveisPadrao()
         ScoreTooltipBG          = true,
         ScoreTooltipAliado      = true,
         ScoreTooltipContra      = true,
+        RenameTooltip           = true,
         NameplateBL             = true,
         NameplateHeal           = true,
         NameplateDharkyn        = true,
+        CombatLogFix            = true,
         FiltroNinja             = false,
         FiltroNinjaBG           = true,
         FiltroLojaUI            = true,
@@ -66,7 +68,8 @@ function BOOTYBAY:VariaveisPadrao()
         Itens                   = 0,
         EntradaBG               = 0,
         GuildBank               = 0,
-        GuildBankData           = 0
+        GuildBankData           = 0,
+        FiltroDownload          = {}
     }
 
     local defaultBootybayData       = 
@@ -92,7 +95,6 @@ function BOOTYBAY:VariaveisPadrao()
         Itens                   = {},
         GuildBank               = {},
     }
-    
     
     BootybayConfig              = BOOTYBAY.Fn_CopiarTabela(defaultBootybayConfig, BootybayConfig)
     BootybayControle            = BOOTYBAY.Fn_CopiarTabela(defaultBootybayControle, BootybayControle)
@@ -156,6 +158,24 @@ function BOOTYBAY:VariaveisPadrao()
         end
     end
     
+    -- Deleta o nick "Unknown" da tabela de renames
+    for k,v in pairs(BOOTYBAY.dbData.Guid) do
+        for i = 1, #BOOTYBAY.dbData.Guid[k] do
+            if BOOTYBAY.dbData.Guid[k][i] == "Unknown" then
+                table.remove(BOOTYBAY.dbData.Guid[k],i)
+            elseif BOOTYBAY.dbData.Guid[k][i] == nil then
+                table.remove(BOOTYBAY.dbData.Guid[k],i)
+            end
+        end
+    end
+    
+    -- Deleta GUIDS sem nick na tabela de renames
+    for k,v in pairs(BOOTYBAY.dbData.Guid) do
+        if #BOOTYBAY.dbData.Guid[k] == 0 then
+            BOOTYBAY.dbData.Guid[k] = nil
+        end
+    end
+  
     -- Limpa variaveis antigas que não são mais usadas nas tabelas do addon
     for k,v in pairs (BOOTYBAY.dbConfig) do
         if defaultBootybayConfig[k] == nil then
@@ -189,13 +209,17 @@ function BOOTYBAY:VariaveisPadrao()
     end
 end
 
-function BOOTYBAY:LoadGuildInfo(inicial)
+function BOOTYBAY:LoadGuildInfo()
     BOOTYBAY.Bool_GuildLoaded = true
     
     if BOOTYBAY.dbChar.NomeGuild ~= GetGuildInfo("player") then -- Reset
         if BOOTYBAY.dbChar.NomeGuild ~= "guild" then
             print("|cff307DD6O addon da Bootybay Surfclub percebeu que houve uma mudança de guild neste personagem, portanto todas as configurações de sua antiga guild foram deletadas.")
-            for _, v in pairs(BOOTYBAY.dbControle) do v = 0 end
+            BOOTYBAY.dbControle.TempoUltimoSyncScore = 0
+            BOOTYBAY.dbControle.Officer         = 0
+            BOOTYBAY.dbControle.Itens           = 0
+            BOOTYBAY.dbControle.GuildBank       = 0
+            BOOTYBAY.dbControle.GuildBankData   = 0
             BOOTYBAY.dbChar.Officer             = 0
             BOOTYBAY.dbChar.Blacklist           = {}
             BOOTYBAY.dbChar.BlacklistExcluidos  = {}
@@ -265,7 +289,7 @@ function Bootybay:ADDON_LOADED(...)
         end
     
         if BOOTYBAY.dbConfig.NovaVers ~= 0 and BOOTYBAY.dbConfig.NovaVers > BOOTYBAY.VERSION then
-            print("|cffff00ffBootybay Surfclub alerta: seu addon está desatualizado!|r")
+            print("|cffff00ffBootybay Surfclub alerta: seu addon está desatualizado!\nAtualize em: discord.gg/y53pXFKRkG|r")
         end
         
     elseif arg1 == "WIM" then

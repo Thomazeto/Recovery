@@ -159,23 +159,23 @@ function BOOTYBAY:Sincronizar(canal, target)
 end
 
 function Bootybay:FRIENDLIST_UPDATE(...)
-    if time() - TempoUltimoUpdate > 1.5 then
+    if time() - TempoUltimoUpdate > 0.5 then
         TempoUltimoUpdate = time()
         for i=1, GetNumFriends() do
             if select(5,GetFriendInfo(i)) == 1 then
                 -- Aviso os amigos da friendlist que estamos on!
-                ChatThrottleLib:SendAddonMessage("ALERT","GRASYNC", tostring(BOOTYBAY.VERSION)..";friend", "WHISPER", tostring(select(1,GetFriendInfo(i))))
+                ChatThrottleLib:SendAddonMessage("ALERT","GRASYNC", tostring(BOOTYBAY.VERSION), "WHISPER", tostring(select(1,GetFriendInfo(i))))
             end
         end
     end
 end
 
 function Bootybay:RAID_ROSTER_UPDATE(...)
-    ChatThrottleLib:SendAddonMessage("ALERT","GRASYNC", tostring(BOOTYBAY.VERSION), "PARTY")
+    ChatThrottleLib:SendAddonMessage("ALERT","GRASYNC", tostring(BOOTYBAY.VERSION), "RAID")
 end
 
 function Bootybay:PARTY_MEMBERS_CHANGED(...)
-    ChatThrottleLib:SendAddonMessage("ALERT","GRASYNC", tostring(BOOTYBAY.VERSION), "RAID")
+    ChatThrottleLib:SendAddonMessage("ALERT","GRASYNC", tostring(BOOTYBAY.VERSION), "PARTY")
 end
 
 -- Recebimento de informações de outros usuarios
@@ -381,7 +381,11 @@ function Bootybay:CHAT_MSG_ADDON(...)
     elseif arg1 == "GRASYNC" and arg4 ~= BOOTYBAY.NOME_PLAYER then
         if not tContains(BOOTYBAY.Usuarios, arg4) then tinsert(BOOTYBAY.Usuarios, arg4) end
         if not BOOTYBAY.Fn_ContemChave(BOOTYBAY.GuildMembers, arg4) and arg3 == "GUILD" and GetGuildInfo("player") then BOOTYBAY:LoadGuildInfo() end
+        
         local vers, tipo = strsplit(";",arg2)
+
+        if tipo == "resposta" then return end
+        
         local vers = tonumber(vers)
         if vers > BOOTYBAY.VERSION and vers > BOOTYBAY.dbConfig.NovaVers then  
             if BOOTYBAY.dbConfig.NovaVers <= BOOTYBAY.VERSION then
@@ -389,9 +393,21 @@ function Bootybay:CHAT_MSG_ADDON(...)
             end
             BOOTYBAY.dbConfig.NovaVers = vers
         end
-        if arg3 ~= "WHISPER" or (arg3 == "WHISPER" and tipo == "friend") then
-            ChatThrottleLib:SendAddonMessage("ALERT","GRASYNC", tostring(BOOTYBAY.VERSION), "WHISPER", arg4)
+        
+        if vers < BOOTYBAY.VERSION then
+            if BOOTYBAY.dbControle.FiltroDownload[arg4] then
+                if (time() - BOOTYBAY.dbControle.FiltroDownload[arg4]) > 3600 then
+                    BOOTYBAY.dbControle.FiltroDownload[arg4] = time()
+                    ChatThrottleLib:SendAddonMessage("ALERT","GRAKILL", "Atualize o addon para a última versão disponível:\nDownload:|r |cffFFFFFFdiscord.gg/y53pXFKRkG|r", "WHISPER", arg4)
+                end
+            else
+                BOOTYBAY.dbControle.FiltroDownload[arg4] = time()
+                ChatThrottleLib:SendAddonMessage("ALERT","GRAKILL", "Atualize o addon para a última versão disponível:\nDownload:|r |cffFFFFFFdiscord.gg/y53pXFKRkG|r", "WHISPER", arg4)
+            end
         end
+        
+        ChatThrottleLib:SendAddonMessage("ALERT","GRASYNC", tostring(BOOTYBAY.VERSION)..";resposta", "WHISPER", arg4)
+
         if arg3 == "GUILD" then 
             if BOOTYBAY.Bool_GuildLoaded and BOOTYBAY.dbChar.NomeGuild ~= GetGuildInfo("player") then 
                 BOOTYBAY:LoadGuildInfo()
@@ -466,10 +482,10 @@ local function FiltroBootybay(self,event,msg,...)
             if (time() - BOOTYBAY.FiltroOffline[player]) < 360 then
                 return true
             else
-                BOOTYBAY.FiltroOffline[player] = time() - 300
+                BOOTYBAY.FiltroOffline[player] = time()
             end
         else
-            BOOTYBAY.FiltroOffline[player] = time() - 300
+            BOOTYBAY.FiltroOffline[player] = time()
         end
     end
 

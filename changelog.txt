@@ -1,3 +1,22 @@
+22/04/2021 - r17
+novo:
+1 - Lançado o embrião de um sistema de report automático de players AFK:
+	atualmente reporta automaticamente apenas players que ficam um tempo off e players que ficam muito tempo morto, em breve reportará players parados no mesmo local.
+2 - Comandos "/gra bgjunto" e "/gra bgcontra", para informar os 10 players que você mais enfrentou em BG, e os 10 com quem você mais fez bg junto.
+3 - Comando "/gra q" envia uma solicitação de info de queue para todos os membros da party.
+4 - Botão de info de queue vai informar o status de Wintergrasp quando o alvo estiver nela.
+5 - Criada configuração para o player decidir se quer que mostre, ou não, os nicks antigos de players com rename identificado.
+6 - Criada msg redirecionando usuarios de versões desatualizadas para um link de download no discord.
+7 - Agora o radar vai ignorar as guilds "Alliance - Iniciantes" e "Horde - Iniciantes".
+
+fix: 
+1 - Fix para o addon ignorar o nick "Unknown" para fins de rename quando o client não carregar os nicks dos players ao seu redor.
+2 - Ajuste tecnico na identificação de outros usuarios ao entrar em uma raid ou pt.
+3 - Correção para um bug muito raro que ocorria ao fim de uma BG quando por algum motivo desconhecido o client não carregava as informações completas no placar de score.
+4 - Ajuste para mostrar info completa quando o player estiver em mais de uma fila ao mesmo tempo.
+
+----------------------------------------
+
 15/03/2021 - r16
 novo:
 1 - Novo sistema/modulo: detector de renames, o addon vai salvar o GUID dos players, dessa forma vai poder detectar quando algum deles trocar o nome, e informará os nomes anteriores.

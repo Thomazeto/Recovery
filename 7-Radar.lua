@@ -97,6 +97,7 @@ function BOOTYBAY:FinalizarRadarPremades()
             
     -- DESCARTE DE GUILDS SEM GRUPO MINIMO, ANUNCIO DE ENTRADA E MUDANÇA DE TAMANHO
     for k,v in pairs(BOOTYBAY.PremadesAtual) do -- k = guild, v = tabela com zonas
+        if k ~= "Alliance - Iniciantes" and k ~= "Horde - Iniciantes" then
         for x,z in pairs (v) do -- x = zona, z = quantidade de players nessa zona
             if (BOOTYBAY.Fn_ContemChave(BOOTYBAY.PremadesOld,k) and BOOTYBAY.Fn_ContemChave(BOOTYBAY.PremadesOld[k],x)) and ((BOOTYBAY.PremadesOld[k][x] - z) >= BOOTYBAY.dbConfig.RadarPremadeMudanca) then
                 if BOOTYBAY.GuildFactionRadar[k] == 1 then
@@ -143,6 +144,7 @@ function BOOTYBAY:FinalizarRadarPremades()
                     BOOTYBAY.PremadesOld[k][x] = z
                 end
             end
+        end
         end
     end
 end
@@ -419,14 +421,7 @@ BootybayTimer:SetScript("OnUpdate", function(self, elapsed)
             FriendsFrame:UnregisterEvent("WHO_LIST_UPDATE")
             table.wipe(BOOTYBAY.PremadesAtual)
             BOOTYBAY:EnviarQueryWhoPremade(1)
-            return
-        else 
-            if BOOTYBAY.dbConfig.RadarInvasao then
-                ExecutarRadarInvasao = true
-            end
-        end
-            
-        if ExecutarRadarInvasao then
+        elseif BOOTYBAY.dbConfig.RadarInvasao then
             SetWhoToUI(1)
             FriendsFrame:UnregisterEvent("WHO_LIST_UPDATE")
             BOOTYBAY:EnviarQueryWhoInvasao(1)

@@ -52,7 +52,8 @@ BootybayPanel.infos = BootybayPanel:CreateFontString(nil, nil, "GameFontNormal")
 
 BootybayPanel.vers = BootybayPanel:CreateFontString(nil, nil, "GameFontNormal")
     BootybayPanel.vers:SetFont('Fonts\\ARIALN.ttf', 13)
-    BootybayPanel.vers:SetPoint("TOP", 150, -390)
+    --BootybayPanel.vers:SetPoint("TOP", 150, -390)
+    BootybayPanel.vers:SetPoint("TOP", 150, -15)
     BootybayPanel.vers:SetWidth(220)
 
 BootybayPanel.database = BootybayPanel:CreateFontString(nil, nil, "GameFontNormal")
@@ -61,6 +62,10 @@ BootybayPanel.database = BootybayPanel:CreateFontString(nil, nil, "GameFontNorma
     BootybayPanel.database:SetWidth(220)
     BootybayPanel.database:SetJustifyH("LEFT")
 
+BootybayPanel.link = BootybayPanel:CreateFontString(nil, nil, "GameFontNormal")
+    BootybayPanel.link:SetFont('Fonts\\ARIALN.ttf', 13)
+    BootybayPanel.link:SetPoint("TOP", 120, -390)
+    BootybayPanel.link:SetWidth(220)
 
 BootybayPanel:SetScript("OnShow", function(self)
     BootybayPanel.estatisticas:SetFormattedText("Agora:\n\nKillstreak: %s\nWinstreak Solo/Duo: %s\nWinstreak Grupo: %s",BOOTYBAY.dbChar.KillStreak, BOOTYBAY.dbChar.WinStreakSolo, BOOTYBAY.dbChar.WinStreakGrupo)
@@ -68,6 +73,7 @@ BootybayPanel:SetScript("OnShow", function(self)
     
     if BOOTYBAY.dbConfig.NovaVers > BOOTYBAY.VERSION then 
         BootybayPanel.vers:SetFormattedText("Versão: r%s\n|cFFFF0000DESATUALIZADO|r",BOOTYBAY.VERSION)
+        BootybayPanel.link:SetText("atualize em:\n|cFFFF0000discord.gg/y53pXFKRkG|r")
     else
         BootybayPanel.vers:SetFormattedText("Versão: r%s",BOOTYBAY.VERSION)
     end
@@ -252,6 +258,11 @@ UIDropDownMenu_Initialize(BootybayPanel.config, function(self, level, menuList)
             info.menuList   = 8
             info.hasArrow   = true
             UIDropDownMenu_AddButton(info)
+        local info          = UIDropDownMenu_CreateInfo() -- OPÇÕES TOOLTIP PLAYERS
+            info.text       = "Tooltips"
+            info.menuList   = 14
+            info.hasArrow   = true
+            UIDropDownMenu_AddButton(info)
         local info          = UIDropDownMenu_CreateInfo() -- OPÇÕES FILTRO
             info.text       = "Filtros"
             info.menuList   = 15
@@ -416,13 +427,6 @@ UIDropDownMenu_Initialize(BootybayPanel.config, function(self, level, menuList)
                 info.menuList           = 10
                 info.hasArrow           = true
                 UIDropDownMenu_AddButton(info, level)
-            local info                  = UIDropDownMenu_CreateInfo() -- MOSTRAR SCORE NA TOOLTIP
-                info.text               = "Mostrar na Tooltip"
-                info.menuList           = 14
-                info.hasArrow           = true
-                info.tooltipTitle       = "Score na Toolip"
-                info.tooltipText        = "Mostra as opções referente a tooltip"
-                UIDropDownMenu_AddButton(info, level)
         elseif menuList == 9 then   -- MENULIST COM DIAS PARA ATUALIZAR SCORES
             for i = 3,15,3 do
                 local info              = UIDropDownMenu_CreateInfo()
@@ -504,7 +508,15 @@ UIDropDownMenu_Initialize(BootybayPanel.config, function(self, level, menuList)
                     if i-1 == BOOTYBAY.dbChar.Officer then info.checked = true end
                     UIDropDownMenu_AddButton(info, level)
             end
-        elseif menuList == 14 then  -- MENULIST COM AS OPÇÕES DE SCORE NA Tooltip
+        elseif menuList == 14 then  -- MENULIST COM OPÇÕES DE TOOLTIP
+            local info                  = UIDropDownMenu_CreateInfo() -- TOOLTIP RENAMES
+                info.text               = "Rename"
+                info.tooltipTitle       = "Rename"
+                info.tooltipText        = "Mostra os nicks antigos do player na sua tooltip."
+                info.func               = self.funcBool
+                info.arg1               = "RenameTooltip"
+                info.checked            = BOOTYBAY.dbConfig.RenameTooltip
+                UIDropDownMenu_AddButton(info, level)
             local info                  = UIDropDownMenu_CreateInfo() -- BG
                 info.func               = self.funcBool
                 info.text               = "Score de BG"
@@ -1091,6 +1103,154 @@ local ScrollEditBox = CreateFrame('ScrollFrame', 'nItensBroadcastScroll', Bootyb
     ScrollEditBox:SetPoint('TOPLEFT', BootybayEditBoxParent, 'TOPLEFT', 0, -5) -- 8, 30
     ScrollEditBox:SetPoint('BOTTOMRIGHT', BootybayEditBoxParent, 'BOTTOMRIGHT', -10, 0) -- -30, 8
     ScrollEditBox:SetScrollChild(BootybayEditBox)
+end
+
+-- Popup Editbox para adicionar na Blacklist
+StaticPopupDialogs["GRA_ADD"] = {
+    text = "Adicionar nome na Blacklist da guild:",
+    button1 = "Adicionar",
+    button2 = "Cancelar",
+    
+    OnAccept = function (self, data, data2)
+        local name = string.gsub(self.editBox:GetText(), "(%a)([%w_']*)", BOOTYBAY.Fn_PadronizarNome)
+        
+        if not BOOTYBAY.Fn_ContemChave(BOOTYBAY.dbChar.Blacklist, name) then
+            local id = time()
+            BOOTYBAY.dbChar.Blacklist[name] = id
+            ChatThrottleLib:SendAddonMessage("NORMAL","BBSCB", strjoin(";",name,tostring(id)), "GUILD")
+            if BOOTYBAY.Fn_ContemChave(BOOTYBAY.dbChar.BlacklistExcluidos, name) then
+                BOOTYBAY.Fn_RemoverChave(BOOTYBAY.dbChar.BlacklistExcluidos, name)
+            end
+            print("|cffff00ff"..name..", incluido na Blacklist com sucesso!")
+        else 
+            print("|cffff00ff"..name..", já está na Blacklist, controle o seu ódio.")
+        end
+    end,
+      
+    OnShow = function (self, data, data2)
+        local name = UnitName("target")
+        if name then self.editBox:SetText(name) end
+        if name ~= "" then
+            self.button1:Enable()
+        else
+            self.button1:Disable()
+        end
+    end,
+    
+    OnHide = function (self) end,
+    
+    EditBoxOnTextChanged = function (self)
+        local parent = self:GetParent()
+        local name = parent.editBox:GetText()
+        if name ~= "" then
+            parent.button1:Enable()
+        else
+            parent.button1:Disable()
+        end
+    end,
+    
+    hasEditBox = true,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = true
+}
+
+-- Popup Editbox para remover da Blacklist
+StaticPopupDialogs["GRA_REMOVE"] = {
+    text = "Remover nome da Blacklist:",
+    button1 = "Remover",
+    button2 = "Cancelar",
+    OnAccept = function (self, data, data2)
+        local name = string.gsub(self.editBox:GetText(), "(%a)([%w_']*)", BOOTYBAY.Fn_PadronizarNome)
+    
+        if BOOTYBAY.Fn_ContemChave(BOOTYBAY.dbChar.Blacklist, name) then
+            BOOTYBAY.Fn_RemoverChave(BOOTYBAY.dbChar.Blacklist, name)
+            local id = time()
+            BOOTYBAY.dbChar.BlacklistExcluidos[name] = id
+            ChatThrottleLib:SendAddonMessage("NORMAL","BBSCE", strjoin(";",name,tostring(id)), "GUILD")
+            print("|cffff00ff"..name..", foi removido da Blacklist.")
+        else 
+            print("|cffff00ff"..name..", não está na Blacklist")
+        end
+    end,
+      
+    OnShow = function (self, data, data2)
+        local name = UnitName("target")
+        if name then self.editBox:SetText(name) end
+        if name ~= "" then
+           self.button1:Enable()
+        else
+           self.button1:Disable()
+        end
+    end,
+    
+    OnHide = function (self) end,
+    
+    EditBoxOnTextChanged = function (self)
+        local parent = self:GetParent()
+        local name = parent.editBox:GetText()
+        if name ~= "" then
+           parent.button1:Enable()
+        else
+           parent.button1:Disable()
+        end
+    end,
+      
+    hasEditBox = true,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = true
+}
+
+-- Frame de ajuste dos nameplates
+BOOTYBAY.FrameAjusteNameplate = CreateFrame("Button", nil, UIParent, "UIPanelCloseButton")
+do
+BOOTYBAY.FrameAjusteNameplate.Text = BOOTYBAY.FrameAjusteNameplate:CreateFontString(nil, nil, "GameFontNormalLarge")
+    BOOTYBAY.FrameAjusteNameplate.Text:SetPoint("CENTER", 0, 55)
+    BOOTYBAY.FrameAjusteNameplate.Text:SetText("Ajuste a posição no nameplate")
+    BOOTYBAY.FrameAjusteNameplate:SetPoint("CENTER",0,1)
+    BOOTYBAY.FrameAjusteNameplate:SetMovable(true)
+    BOOTYBAY.FrameAjusteNameplate:RegisterForDrag("LeftButton")
+    BOOTYBAY.FrameAjusteNameplate:SetScript("OnDragStart", BOOTYBAY.FrameAjusteNameplate.StartMoving)
+    BOOTYBAY.FrameAjusteNameplate:SetScript("OnDragStop", BOOTYBAY.FrameAjusteNameplate.StopMovingOrSizing)
+    BOOTYBAY.FrameAjusteNameplate:SetScript("OnClick", function(self)
+        self:Hide()
+    end)
+
+BOOTYBAY.FrameAjusteNameplate.Cima = CreateFrame("Button", nil, BOOTYBAY.FrameAjusteNameplate, "UIPanelButtonTemplate")
+    BOOTYBAY.FrameAjusteNameplate.Cima:SetPoint("CENTER", 0, 30)
+    BOOTYBAY.FrameAjusteNameplate.Cima:SetHeight(25)
+    BOOTYBAY.FrameAjusteNameplate.Cima:SetWidth(35)
+    BOOTYBAY.FrameAjusteNameplate.Cima:SetText("Subir")
+    BOOTYBAY.FrameAjusteNameplate.Cima:SetScript("OnClick", function(self)
+        BOOTYBAY.dbConfig.Icone_Y = BOOTYBAY.dbConfig.Icone_Y + 1
+    end)
+BOOTYBAY.FrameAjusteNameplate.Baixo = CreateFrame("Button", nil, BOOTYBAY.FrameAjusteNameplate, "UIPanelButtonTemplate")
+    BOOTYBAY.FrameAjusteNameplate.Baixo:SetPoint("CENTER", 0, -30)
+    BOOTYBAY.FrameAjusteNameplate.Baixo:SetHeight(25)
+    BOOTYBAY.FrameAjusteNameplate.Baixo:SetWidth(35)
+    BOOTYBAY.FrameAjusteNameplate.Baixo:SetText("Descer")
+    BOOTYBAY.FrameAjusteNameplate.Baixo:SetScript("OnClick", function(self)
+        BOOTYBAY.dbConfig.Icone_Y = BOOTYBAY.dbConfig.Icone_Y - 1
+    end)
+BOOTYBAY.FrameAjusteNameplate.Esquerda = CreateFrame("Button", nil, BOOTYBAY.FrameAjusteNameplate, "UIPanelButtonTemplate")
+    BOOTYBAY.FrameAjusteNameplate.Esquerda:SetPoint("CENTER", -30, 0)
+    BOOTYBAY.FrameAjusteNameplate.Esquerda:SetHeight(25)
+    BOOTYBAY.FrameAjusteNameplate.Esquerda:SetWidth(25)
+    BOOTYBAY.FrameAjusteNameplate.Esquerda:SetText("<<")
+    BOOTYBAY.FrameAjusteNameplate.Esquerda:SetScript("OnClick", function(self)
+        BOOTYBAY.dbConfig.Icone_X = BOOTYBAY.dbConfig.Icone_X - 1
+    end)
+BOOTYBAY.FrameAjusteNameplate.Direita = CreateFrame("Button", nil, BOOTYBAY.FrameAjusteNameplate, "UIPanelButtonTemplate")
+    BOOTYBAY.FrameAjusteNameplate.Direita:SetPoint("CENTER", 30, 0)
+    BOOTYBAY.FrameAjusteNameplate.Direita:SetHeight(25)
+    BOOTYBAY.FrameAjusteNameplate.Direita:SetWidth(25)
+    BOOTYBAY.FrameAjusteNameplate.Direita:SetText(">>")
+    BOOTYBAY.FrameAjusteNameplate.Direita:SetScript("OnClick", function(self)
+        BOOTYBAY.dbConfig.Icone_X = BOOTYBAY.dbConfig.Icone_X + 1
+    end)
+
+BOOTYBAY.FrameAjusteNameplate:Hide()
 end
 
 hooksecurefunc("UnitPopup_ShowMenu", IncluirOpcoesExtrasDropdown)

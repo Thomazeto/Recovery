@@ -53,7 +53,7 @@ local function AddItemTooltip(tooltip)
     if not itemName or not itemLink then return end
         
     if tContains(BOOTYBAY.dbChar.Itens, itemName) then
-        tooltip:AddLine("A "..BOOTYBAY.dbChar.NomeGuild.." tem interesse em ter esse item no nosso GV.",0,1,1,true)
+        tooltip:AddLine("A "..BOOTYBAY.dbChar.NomeGuild.." tem interesse nesse item.",0,1,1,true)
     end 
     
     if BOOTYBAY.dbConfig.GuildBankTooltip then

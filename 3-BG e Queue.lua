@@ -2,6 +2,7 @@ local Recovery, BOOTYBAY    = ...
 local Bootybay              = BOOTYBAY.events
 local BootybayTimer         = CreateFrame("Frame")
 BootybayTimer.UpdateBgScore = 0
+BootybayTimer.UpdateAntiAfk = 0
 
 BOOTYBAY.PLAYER_FACTION     = UnitFactionGroup("player")
 BOOTYBAY.PLAYER_FACTION_ID  = 0
@@ -13,6 +14,7 @@ local TamanhoDoGrupo        = 0
 local UltimoAviso           = 0
 local QuemSolicitou         = nil
 local Bool_RessAvisado      = false
+local PlayersAway           = {}
 
 local select, strjoin       = _G.select, _G.strjoin
 
@@ -49,7 +51,7 @@ function Bootybay:UPDATE_BATTLEFIELD_STATUS(...)
     
     for i = 1, GetNumBattlefieldScores(), 1 do
         local name, kB, _, _, _, faction, _, _, _, _, dmg, heal = GetBattlefieldScore(i)
-        
+        if name then    
         if name ~= BOOTYBAY.NOME_PLAYER then
             if  faction ~= BOOTYBAY.PLAYER_FACTION_ID then
                 if not BOOTYBAY.Fn_ContemChave(BOOTYBAY.dbData.BgContra, name) then
@@ -98,6 +100,7 @@ function Bootybay:UPDATE_BATTLEFIELD_STATUS(...)
                 local sendMessage = strjoin(";",BOOTYBAY.NOME_PLAYER, "0", "0", "0", "0", "0", tostring(BOOTYBAY.dbChar.MembrosData[BOOTYBAY.NOME_PLAYER]["killbg"]), "0", "0")
                 ChatThrottleLib:SendAddonMessage("BULK","GRARANKING", sendMessage, "GUILD")
             end
+        end
         end
     end
 
@@ -160,6 +163,7 @@ end
 function Bootybay:PLAYER_ENTERING_WORLD(self, event, isInitialLogin, isReloadingUi)
     local inInstance, instanceType = IsInInstance()
     BOOTYBAY.Healers = table.wipe(BOOTYBAY.Healers)
+    PlayersAway = table.wipe(PlayersAway)
 
     if inInstance == 1 and instanceType == "pvp" and GetBattlefieldWinner() == nil then -- Entramos numa BG em andamento
         BOOTYBAY.Bool_PlayerEmBG = true
@@ -297,6 +301,19 @@ end
 
 -- Acessar informações sobre situação do Queue
 function BOOTYBAY:AcessarInfoQueue(arg1)
+    local SemQueue = true
+    
+    if select(1,GetMapInfo()) == "LakeWintergrasp" then
+        if select(2,GetWorldStateUIInfo(7)) == 1 then
+        SemQueue = false
+            if select(2,GetWorldStateUIInfo(5)) == 1 then
+                ChatThrottleLib:SendAddonMessage("ALERT", "GRAQ",""..BOOTYBAY.NOME_PLAYER.." está em Wintergrasp:\nControle: Ally\nHorda: "..select(3,GetWorldStateUIInfo(3)).."\nAlly: "..select(3,GetWorldStateUIInfo(4)).."\n"..select(3,GetWorldStateUIInfo(7)).."", "WHISPER", arg1) 
+            elseif select(2,GetWorldStateUIInfo(6)) == 1 then
+                ChatThrottleLib:SendAddonMessage("ALERT", "GRAQ",""..BOOTYBAY.NOME_PLAYER.." está em Wintergrasp:\nControle: Horda\nHorda: "..select(3,GetWorldStateUIInfo(3)).."\nAlly: "..select(3,GetWorldStateUIInfo(4)).."\n"..select(3,GetWorldStateUIInfo(7)).."", "WHISPER", arg1) 
+            end
+        end
+    end
+        
     for i=1, MAX_BATTLEFIELD_QUEUES do
         local status, map, ID, _, _, size = GetBattlefieldStatus(i)
         
@@ -323,17 +340,17 @@ function BOOTYBAY:AcessarInfoQueue(arg1)
         elseif status == "queued" then -- está dentro do queue
             if size == 0 then
                 ChatThrottleLib:SendAddonMessage("ALERT","GRAQ", ""..BOOTYBAY.NOME_PLAYER.." está no queue para "..map..".\nTempo até agora: "..BOOTYBAY.Fn_ConverterTime(GetBattlefieldTimeWaited(i) / 1000)..".", "WHISPER", arg1)
-                return
+                SemQueue = false
             elseif size == 5 then
                 ChatThrottleLib:SendAddonMessage("ALERT","GRAQ", ""..BOOTYBAY.NOME_PLAYER.." está no queue para SoloQ ou 5v5 Skirmish.\nTempo até agora: "..BOOTYBAY.Fn_ConverterTime(GetBattlefieldTimeWaited(i) / 1000)..".", "WHISPER", arg1)
-                return
+                SemQueue = false
             else
                 ChatThrottleLib:SendAddonMessage("ALERT","GRAQ", ""..BOOTYBAY.NOME_PLAYER.." está no queue para arena "..size.."v"..size..".\nTempo até agora: "..BOOTYBAY.Fn_ConverterTime(GetBattlefieldTimeWaited(i) / 1000)..".", "WHISPER", arg1)
-                return
+                SemQueue = false
             end
         elseif status == "confirm" then -- o player foi convocado mas ainda não escolheu entrar ou sair
             ChatThrottleLib:SendAddonMessage("ALERT","GRAQ", ""..BOOTYBAY.NOME_PLAYER.." está aguardando confimação para entrar na "..map.." "..ID.."", "WHISPER", arg1)
-            return
+            SemQueue = false
         end
     end
 
@@ -347,7 +364,9 @@ function BOOTYBAY:AcessarInfoQueue(arg1)
         return
     end
     
-    ChatThrottleLib:SendAddonMessage("ALERT","GRAQ", ""..BOOTYBAY.NOME_PLAYER.." não está em queue.", "WHISPER", arg1)
+    if SemQueue then
+        ChatThrottleLib:SendAddonMessage("ALERT","GRAQ", ""..BOOTYBAY.NOME_PLAYER.." não está em queue.", "WHISPER", arg1)
+    end
 end
 
 function Bootybay:UPDATE_BATTLEFIELD_SCORE(...)
@@ -362,21 +381,78 @@ function Bootybay:PLAYER_UNGHOST(...)
     end
 end
 
-BootybayTimer:SetScript("OnUpdate", function(self, elapsed)
-    if BOOTYBAY.Bool_PlayerEmBG then
-        BootybayTimer.UpdateBgScore = BootybayTimer.UpdateBgScore + elapsed
-        if BootybayTimer.UpdateBgScore >= 15 then
-            SetBattlefieldScoreFaction(nil)
-            PanelTemplates_SetTab(WorldStateScoreFrame, 1)
-            RequestBattlefieldScoreData()
-            BootybayTimer.UpdateBgScore = 0
+function BOOTYBAY:ReportAway()
+    for i=1, GetNumRaidMembers() do
+        local nome = UnitName("raid" .. i) -- nome do player
+        if nome == "Unknown" then return end
+        if not PlayersAway[nome] then PlayersAway[nome] = {} end
+        local zone = select(7,GetRaidRosterInfo(i))
+    
+        if not UnitIsConnected("raid" .. i) then -- checa se tem alguém offline a muito tempo
+            if not PlayersAway[nome]["off"] then
+                PlayersAway[nome]["off"] = true
+                PlayersAway[nome]["offtick"] = 1
+            else
+                PlayersAway[nome]["offtick"] = PlayersAway[nome]["offtick"] + 1
+                if PlayersAway[nome]["offtick"] == 30 then
+                    print("|cffFFFF55Sistema de report automático da Bootybay:|r |cffff00ff"..nome.." |cffFFFF55foi reportado pois está offline a 30 segundos.|r")
+                    ReportPlayerIsPVPAFK("raid" .. i)
+                end
+            end
+        end
+    
+        if PlayersAway[nome]["off"] and zone and zone ~= "Offline" then -- checa se algum player marcado como offline logou
+            PlayersAway[nome]["off"] = false
         end
         
+        if UnitIsDeadOrGhost("raid" .. i) then -- checa se tem alguém morto a muito tempo
+            if not PlayersAway[nome]["morto"] then
+                PlayersAway[nome]["morto"] = true
+                PlayersAway[nome]["mortotick"] = 1
+            else
+                PlayersAway[nome]["mortotick"] = PlayersAway[nome]["mortotick"] + 1
+                if PlayersAway[nome]["mortotick"] == 61 then
+                    print("|cffFFFF55Sistema de report automático da Bootybay:|r |cffff00ff"..nome.." |cffFFFF55foi reportado pois está morto a mais de 1 minuto.|r")
+                    ReportPlayerIsPVPAFK("raid" .. i)
+                end
+            end
+        else
+            if PlayersAway[nome]["morto"] then
+                PlayersAway[nome]["morto"] = false
+            end
+        end    
+    end
+end
+
+BootybayTimer:SetScript("OnUpdate", function(self, elapsed)
+    if BOOTYBAY.Bool_PlayerEmBG then
         if UnitIsDeadOrGhost("player") == 1 then
             if not Bool_RessAvisado and GetAreaSpiritHealerTime() ~= 0 then
                 Bool_RessAvisado = true
                 ChatThrottleLib:SendAddonMessage("ALERT","BBSCRES",""..BOOTYBAY.NOME_PLAYER.." nascerá em "..GetMinimapZoneText().." dentro de "..GetAreaSpiritHealerTime().."s","BATTLEGROUND")
             end
+        end
+        
+        BootybayTimer.UpdateAntiAfk = BootybayTimer.UpdateAntiAfk + elapsed
+        
+        if BootybayTimer.UpdateAntiAfk >= 1 then
+            BootybayTimer.UpdateAntiAfk = 0
+            BOOTYBAY:ReportAway()
+        end
+        
+        BootybayTimer.UpdateBgScore = BootybayTimer.UpdateBgScore + elapsed
+        
+        if BootybayTimer.UpdateBgScore >= 15 then
+            if _G.WorldStateScoreFrame:IsVisible() then -- Usuario está lendo a janela de Score, então vamos dar tempo a ele
+                BootybayTimer.UpdateBgScore = BootybayTimer.UpdateBgScore - 5
+                return
+            end
+            
+            BootybayTimer.UpdateBgScore = 0
+            
+            SetBattlefieldScoreFaction(nil)
+            PanelTemplates_SetTab(WorldStateScoreFrame, 1)
+            RequestBattlefieldScoreData()
         end
     end
 end)

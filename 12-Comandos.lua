@@ -18,10 +18,21 @@ local function ComandosBootybay(cmd,self)
             end
         end
     elseif cmd == "auc" then -- Reseta o historico de preços do Auctionator
-        AUCTIONATOR_PRICE_DATABASE = {}
-        AUCTIONATOR_PRICING_HISTORY = {}
+        table.wipe(AUCTIONATOR_PRICE_DATABASE)
+        table.wipe(AUCTIONATOR_PRICING_HISTORY)
         print("|cffff00ffBootybay: Database do Auctionator foi resetada!")
     elseif cmd == "bg" then
+        BOOTYBAY:AcessarInfoQueue(BOOTYBAY.NOME_PLAYER)
+    elseif cmd == "q" then
+        local n
+        for i=1, GetRealNumPartyMembers() do
+            n = UnitName("party"..i)
+            if not tContains(BOOTYBAY.Usuarios, n) then
+                DEFAULT_CHAT_FRAME:AddMessage("Bootybay: "..n.." não usa o addon.",0,1,0)
+            else
+                ChatThrottleLib:SendAddonMessage("ALERT","BBSCI", "Queue", "WHISPER", ""..n.."")
+            end
+        end
         BOOTYBAY:AcessarInfoQueue(BOOTYBAY.NOME_PLAYER)
     elseif (cmd == "premades" or cmd == "p") then
         if BOOTYBAY.MapaNoRadar == 0 then
@@ -36,7 +47,7 @@ local function ComandosBootybay(cmd,self)
                 end
             end
         else
-            print("|cffFFFF55Radar sendo executado neste momento! aguarde a conclusão e solicite o comando novamente.")
+            print("|cffFFFF55Radar Bootybay: o radar está sendo executado neste mesmo instante, aguarde a conclusão e solicite o comando novamente.|r")
         end
     elseif cmd == "blacklist add" then
         if BOOTYBAY.PLAYER_RANK_GUILD <= BOOTYBAY.dbChar.Officer then
@@ -55,9 +66,17 @@ local function ComandosBootybay(cmd,self)
         DEFAULT_CHAT_FRAME:AddMessage("|cffFF6600Players na Blacklist da guild:");
         DEFAULT_CHAT_FRAME:AddMessage("|cffFF6600"..table.concat(temp,", ").."");
     elseif cmd == "checkw" then
+        local n
         for i = 1, GetNumWhoResults() do
-            local n = GetWhoInfo(i)
+            n = GetWhoInfo(i)
             ChatThrottleLib:SendAddonMessage("ALERT","GRACHECK", "informe", "WHISPER", ""..n.."")
+        end
+    elseif cmd == "checkq" then
+        local n
+        print("Consultando...")
+        for i = 1, GetNumWhoResults() do
+            n = GetWhoInfo(i)
+            ChatThrottleLib:SendAddonMessage("ALERT","BBSCI", "Queue", "WHISPER", ""..n.."")
         end
     elseif msg == "score" then
         local nick
@@ -100,6 +119,30 @@ local function ComandosBootybay(cmd,self)
             local wrRound = BOOTYBAY.Fn_Arredondamento(wr, 2) * 100
             print("|cffFF6600Total contra: "..BOOTYBAY.dbData.BgContra[nick]["total"]..", WR: "..wrRound.."%")
         end
+    elseif msg == "bgjunto" then
+        local keys = {}
+        for k,v in pairs(BootybayData.BgJunto) do
+            table.insert(keys,k)
+        end
+        table.sort(keys, function(a, b) return (BootybayData.BgJunto[a]["total"]  > BootybayData.BgJunto[b]["total"]) end)
+        print("|cffFF6600Bootybay: lista dos players com quem você mais fez bg junto:")
+        for i=1,10 do
+            if keys[i] then
+                print("|cffFF6600"..i..") "..keys[i]..": "..BootybayData.BgJunto[keys[i]]["total"].." ("..BootybayData.BgJunto[keys[i]]["vitoria"].." - ".. BootybayData.BgJunto[keys[i]]["total"] - BootybayData.BgJunto[keys[i]]["vitoria"] ..")")
+            end
+        end
+    elseif msg == "bgcontra" then
+        local keys = {}
+        for k,v in pairs(BootybayData.BgContra) do
+            table.insert(keys,k)
+        end
+        table.sort(keys, function(a, b) return (BootybayData.BgContra[a]["total"]  > BootybayData.BgContra[b]["total"]) end)
+        print("|cffFF6600Bootybay: lista dos players que você mais enfrentou em bg:")
+        for i=1,10 do
+            if keys[i] then
+                print("|cffFF6600"..i..") "..keys[i]..": "..BootybayData.BgContra[keys[i]]["total"].." ("..BootybayData.BgContra[keys[i]]["vitoria"].." - ".. BootybayData.BgContra[keys[i]]["total"] - BootybayData.BgContra[keys[i]]["vitoria"] ..")")
+            end
+        end
     elseif msg == "rank" then
         InterfaceOptionsFrame_OpenToCategory(Bootybay2)
     elseif msg == "gm" then
@@ -108,103 +151,5 @@ local function ComandosBootybay(cmd,self)
         InterfaceOptionsFrame_OpenToCategory(BootybayPanel)
     end
 end
-
--- Editbox para adicionar na Blacklist
-StaticPopupDialogs["GRA_ADD"] = {
-    text = "Adicionar nome na Blacklist da guild:",
-    button1 = "Adicionar",
-    button2 = "Cancelar",
-    
-    OnAccept = function (self, data, data2)
-        local name = string.gsub(self.editBox:GetText(), "(%a)([%w_']*)", BOOTYBAY.Fn_PadronizarNome)
-        
-        if not BOOTYBAY.Fn_ContemChave(BOOTYBAY.dbChar.Blacklist, name) then
-            local id = time()
-            BOOTYBAY.dbChar.Blacklist[name] = id
-            ChatThrottleLib:SendAddonMessage("NORMAL","BBSCB", strjoin(";",name,tostring(id)), "GUILD")
-            if BOOTYBAY.Fn_ContemChave(BOOTYBAY.dbChar.BlacklistExcluidos, name) then
-                BOOTYBAY.Fn_RemoverChave(BOOTYBAY.dbChar.BlacklistExcluidos, name)
-            end
-            print("|cffff00ff"..name..", incluido na Blacklist com sucesso!")
-        else 
-            print("|cffff00ff"..name..", já está na Blacklist, controle o seu ódio.")
-        end
-    end,
-      
-    OnShow = function (self, data, data2)
-        local name = UnitName("target")
-        if name then self.editBox:SetText(name) end
-        if name ~= "" then
-            self.button1:Enable()
-        else
-            self.button1:Disable()
-        end
-    end,
-    
-    OnHide = function (self) end,
-    
-    EditBoxOnTextChanged = function (self)
-        local parent = self:GetParent()
-        local name = parent.editBox:GetText()
-        if name ~= "" then
-            parent.button1:Enable()
-        else
-            parent.button1:Disable()
-        end
-    end,
-    
-    hasEditBox = true,
-    timeout = 0,
-    whileDead = true,
-    hideOnEscape = true
-}
-
--- Editbox para remover da Blacklist
-StaticPopupDialogs["GRA_REMOVE"] = {
-    text = "Remover nome da Blacklist:",
-    button1 = "Remover",
-    button2 = "Cancelar",
-    OnAccept = function (self, data, data2)
-        local name = string.gsub(self.editBox:GetText(), "(%a)([%w_']*)", BOOTYBAY.Fn_PadronizarNome)
-    
-        if BOOTYBAY.Fn_ContemChave(BOOTYBAY.dbChar.Blacklist, name) then
-            BOOTYBAY.Fn_RemoverChave(BOOTYBAY.dbChar.Blacklist, name)
-            local id = time()
-            BOOTYBAY.dbChar.BlacklistExcluidos[name] = id
-            ChatThrottleLib:SendAddonMessage("NORMAL","BBSCE", strjoin(";",name,tostring(id)), "GUILD")
-            print("|cffff00ff"..name..", foi removido da Blacklist.")
-        else 
-            print("|cffff00ff"..name..", não está na Blacklist")
-        end
-    end,
-      
-    OnShow = function (self, data, data2)
-        local name = UnitName("target")
-        if name then self.editBox:SetText(name) end
-        if name ~= "" then
-           self.button1:Enable()
-        else
-           self.button1:Disable()
-        end
-    end,
-    
-    OnHide = function (self) end,
-    
-    EditBoxOnTextChanged = function (self)
-        local parent = self:GetParent()
-        local name = parent.editBox:GetText()
-        if name ~= "" then
-           parent.button1:Enable()
-        else
-           parent.button1:Disable()
-        end
-    end,
-      
-    hasEditBox = true,
-    timeout = 0,
-    whileDead = true,
-    hideOnEscape = true
-}
-
 
 SlashCmdList["GRA"] = ComandosBootybay

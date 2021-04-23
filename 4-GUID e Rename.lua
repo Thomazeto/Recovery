@@ -31,6 +31,7 @@ function BOOTYBAY:AtualizarGuidScoreBG(tab, nome, guid)
 end
     
 function BOOTYBAY:AtualizarGuid(nome, guid, score)
+    if nome == "Unknown" then return end
     if BOOTYBAY.dbData.Guid[guid] then 
         if not tContains(BOOTYBAY.dbData.Guid[guid], nome) then
             tinsert(BOOTYBAY.dbData.Guid[guid], nome)
